@@ -1,11 +1,12 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { getUserId } = require('../../utils')
 
 const auth = {
   async signup(parent, args, ctx, info) {
     const password = await bcrypt.hash(args.password, 10)
     const user = await ctx.db.mutation.createUser({
-      data: { ...args, password },
+      data: { ...args, password, type: "Guest" },
     })
 
     return {
@@ -30,6 +31,25 @@ const auth = {
       user,
     }
   },
+
+  async changePassword(parent, { oldPassword, newPassword }, ctx, info) {
+    const userId = getUserId(ctx)
+
+    const user = await ctx.db.query.user({ where: { id: userId } })
+    if (!user) {
+      throw new Error(`No current user found`)
+    }
+
+    const matches = await bcrypt.compare(oldPassword, user.password)
+    if (!matches) {
+      throw new Error('Old password doesn\'t match')
+    }
+
+    const password = await bcrypt.hash(newPassword, 10);
+
+    const updatedUser = await ctx.db.mutation.updateUser({data: {password}, where: {id: userId}}, info)
+    return updatedUser;
+  }
 }
 
 module.exports = { auth }

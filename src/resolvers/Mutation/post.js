@@ -3,6 +3,13 @@ const { getUserId } = require('../../utils')
 const post = {
   async createDraft(parent, { title, text, isPublished = false }, ctx, info) {
     const userId = getUserId(ctx)
+    const user = await ctx.db.exists.User({
+      id: userId,
+      type: "Admin"
+    })
+    if (!user) {
+      throw new Error('Forbidden')
+    }
     return ctx.db.mutation.createPost(
       {
         data: {

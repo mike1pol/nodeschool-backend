@@ -18,6 +18,7 @@ type Post implements Node {
 type User implements Node {
   id: ID!
   email: String!
+  type: Role!
   password: String!
   name: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
@@ -497,6 +498,11 @@ type Query {
   id: ID!): Node
 }
 
+enum Role {
+  Admin
+  Guest
+}
+
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
@@ -519,6 +525,7 @@ type UserConnection {
 
 input UserCreateInput {
   email: String!
+  type: Role
   password: String!
   name: String!
   posts: PostCreateManyWithoutAuthorInput
@@ -531,6 +538,7 @@ input UserCreateOneWithoutPostsInput {
 
 input UserCreateWithoutPostsInput {
   email: String!
+  type: Role
   password: String!
   name: String!
 }
@@ -554,6 +562,8 @@ enum UserOrderByInput {
   id_DESC
   email_ASC
   email_DESC
+  type_ASC
+  type_DESC
   password_ASC
   password_DESC
   name_ASC
@@ -567,6 +577,7 @@ enum UserOrderByInput {
 type UserPreviousValues {
   id: ID!
   email: String!
+  type: Role!
   password: String!
   name: String!
 }
@@ -608,6 +619,7 @@ input UserSubscriptionWhereInput {
 
 input UserUpdateInput {
   email: String
+  type: Role
   password: String
   name: String
   posts: PostUpdateManyWithoutAuthorInput
@@ -623,6 +635,7 @@ input UserUpdateOneWithoutPostsInput {
 
 input UserUpdateWithoutPostsDataInput {
   email: String
+  type: Role
   password: String
   name: String
 }
@@ -747,6 +760,19 @@ input UserWhereInput {
   All values not ending with the given string.
   """
   email_not_ends_with: String
+  type: Role
+  """
+  All values that are not equal to given value.
+  """
+  type_not: Role
+  """
+  All values that are contained in given list.
+  """
+  type_in: [Role!]
+  """
+  All values that are not contained in given list.
+  """
+  type_not_in: [Role!]
   password: String
   """
   All values that are not equal to given value.

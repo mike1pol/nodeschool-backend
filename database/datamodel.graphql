@@ -11,7 +11,13 @@ type Post {
 type User {
   id: ID! @unique
   email: String! @unique
+  type: Role! @default(value: Guest)
   password: String!
   name: String!
   posts: [Post!]!
+}
+
+enum Role {
+  Admin
+  Guest
 }
